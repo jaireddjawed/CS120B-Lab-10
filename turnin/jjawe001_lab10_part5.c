@@ -69,7 +69,6 @@ int SM_Tick(int state) {
 			if (x == keys[0]) {
 				sm1_state = OnePress;
 			}
-			
 			else {
 				sm1_state = PoundPress;
 			}
@@ -259,13 +258,11 @@ int SM3_Tick(int state) {
 
 enum SM4_States {SM4_Start, SM4_FirstCode, SM4_SecondCode, SM4_ThirdCode, SM4_FourthCode, SM4_Change} sm4_state;
 char newCode[4] = {};
-int timer = 0;
 
 int SM4_Tick(int state) {
 	unsigned char x = GetKeypadKey();
 	switch (sm4_state) {
 		case SM4_Start:
-			timer = 0;
 			if (x == '*' && (~PINB & 0x80) == 0x80) {
 				sm4_state = SM4_FirstCode;
 			}
@@ -274,13 +271,7 @@ int SM4_Tick(int state) {
 			}
 			break;
 		case SM4_FirstCode:
-			timer++;
-
-			// prevent code change if it takes longer than 2 secs
-			if (timer >= 20) {
-				sm4_state = SM4_Start;
-			}
-			else if (x == '1') {
+			if (x == '1') {
 				newCode[0] = '1';
 				sm4_state = SM4_SecondCode;
 			}
@@ -326,7 +317,7 @@ int SM4_Tick(int state) {
 			}
 			else if (x == 'B') {
 				newCode[0] = 'B';
-				sm4_state = SM4_SecondCode;
+				sm4_state - SM4_SecondCode;
 			}
 			else if (x == 'C') {
 				newCode[0] = 'C';
@@ -341,11 +332,7 @@ int SM4_Tick(int state) {
 			}
 			break;
 		case SM4_SecondCode:
-			timer++;
-			if (timer >= 20) {
-				sm4_state = SM4_Start;
-			}
-			else if (x == '1') {
+			if (x == '1') {
 				newCode[1] = '1';
 				sm4_state = SM4_ThirdCode;
 			}
@@ -407,12 +394,7 @@ int SM4_Tick(int state) {
 			}
 			break;
 		case SM4_ThirdCode:
-			timer++;
-
-			if (timer >= 20) {
-				sm4_state = SM4_Start;
-			}
-			else if (x == '1') {
+			if (x == '1') {
 				newCode[2] = '1';
 				sm4_state = SM4_FourthCode;
 			}
@@ -473,11 +455,7 @@ int SM4_Tick(int state) {
 			}
 			break;
 		case SM4_FourthCode:
-			timer++;
-			if (timer >= 20) {
-				sm4_state = SM4_Start;
-			}
-			else if (x == '1') {
+			if (x == '1') {
 				newCode[3] = '1';
 				sm4_state = SM4_Change;
 			}
@@ -538,10 +516,9 @@ int SM4_Tick(int state) {
 			}
 			break;
 		case SM4_Change:
-			keys[0] = newCode[0];
-			keys[1] = newCode[1];
-			keys[2] = newCode[2];
-			keys[3] = newCode[3];
+			for (int i = 0; i < 4; i++) {
+				keys[i] = newCode[i];
+			}
 			changed = 1;
 			state = SM4_Start;
 			break;
@@ -581,7 +558,7 @@ int main(void) {
 	task3.TickFct = &SM3_Tick;
 
 	task4.state = SM4_Start;
-	task4.period = 200;
+	task4.period = 50;
 	task4.elapsedTime = task4.period;
 	task4.TickFct = &SM4_Tick;
 
